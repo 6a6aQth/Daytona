@@ -1,0 +1,255 @@
+Daytona Malawi — System Design Document (SDD)
+Feature set:
+1.	Service Booking & Vehicle Check-In System
+2.	Vehicle Stock Listing + Inquiry System
+This SDD follows the M.A.S.T.E.R. framework you provided (Model → Architecture → Scale → Tradeoffs → Execution → Resilience). 
+________________________________________
+1. MODEL — Requirements & Constraints
+1.1 Goals (high level)
+•	Turn Daytona’s informational website into a useful business tool by adding two practical features:
+o	Allow customers to book vehicle services and check-in (reduces WhatsApp/call friction).
+o	Allow staff to publish vehicle stock and let visitors inquire / request test drives / request price.
+•	Minimal friction for users (no heavy login for customers). Admin portal for staff.
+1.2 Stakeholders & Users
+•	Customers / Public users — browse vehicles, make inquiries, book service slots; get confirmations.
+•	Admin / Staff — manage bookings, accept/reschedule/cancel, manage vehicle stock, respond to leads.
+•	Service Technicians — view daily check-in / job list (optional mobile view).
+•	Marketing / Management — reports, user contact list.
+1.3 Functional requirements (must-haves)
+•	Public pages: Home, About, Services, Vehicles, Contact, Book Service, Vehicle Detail.
+•	Service booking flow: choose service type, preferred date/time, vehicle details, contact; optional upload (photo or reg. doc).
+•	Admin dashboard: list/manage bookings, mark check-in, update service status (Scheduled → In progress → Completed), send notifications, export CSV.
+•	Vehicle stock: admin adds/edits/deletes listings with images, price, condition, location, VIN/reg number, mileage, features.
+•	Inquiry flow: “Request price / Test drive / Contact seller” form on each vehicle; creates lead for admin.
+•	Lightweight reporting: daily bookings, pending leads, vehicle views (basic counts).
+•	Email + SMS or WhatsApp notification for confirmations & reminders.
+1.4 Non-functional requirements
+•	Availability: 99.5% (small business; target upgradable).
+•	Latency: page load < 2s (cached assets).
+•	Expected initial traffic: 100–500 unique visitors/day. Peak: 2–5x on promos.
+•	Auth: Admins via secure login (2FA optional). Customers: no mandatory account—bookings identified by contact (phone/email) and booking reference.
+•	Security: TLS, input validation, rate limits, secrets vault.
+•	GDPR-like privacy: store only data required; retention policy for leads/bookings.
+1.5 Constraints
+•	Budget: small — prefer serverless/managed services (Vercel, Supabase/Neon, Cloudflare).
+•	Team: 1–2 devs for MVP.
+•	Time: MVP ~2–4 weeks (task list below).
+•	Storage: images up to 5MB each.
+1.6 Success metrics
+•	Booking completion rate ≥ 60% of started bookings.
+•	Response SLA: admin replies to 80% of leads within 24 hours.
+•	Page load 90th percentile < 2s.
+•	Uptime 99.5% monthly.
+________________________________________
+2. ARCHITECTURE — High Level
+2.1 Conceptual components
+•	Frontend (public website + admin panel) — Next.js (React) or plain React + SSR for SEO.
+•	Backend API — RESTful JSON microservice (e.g., Fastify/NestJS/Express on Node.js) or serverless API routes (Vercel/Netlify).
+•	Database — PostgreSQL (managed: Neon / Supabase / RDS).
+•	Object storage — S3 / Cloudflare R2 for vehicle images.
+•	Cache — Redis for rate-limiting, session caching.
+•	Notifications — Email provider (SendGrid / Mailgun), SMS gateway (Twilio / Africa-specific SMS provider), WhatsApp Business API (optional).
+•	CDN — Cloudflare for static assets and image caching.
+•	Identity/Auth — Admin auth via Supabase Auth / NextAuth / Auth0.
+•	Observability — Logging (LogDNA / Papertrail), Metrics (Prometheus/Grafana or hosted alternatives).
+•	CI/CD — GitHub Actions to build & deploy to Vercel (frontend) and Render/Cloud Run/Serverless (backend).
+2.2 User flows
+•	Booking (no account): Visitor → Book service form → Validate → Create booking record → Send confirmation (Email/SMS) → Admin notified → Admin approves/reschedules → Reminder before slot.
+•	Vehicle inquiry: Visitor → Vehicle listing → Click request form → Create lead → Admin notified → Follow-up via phone/WhatsApp.
+•	Admin actions: Login → Dashboard → View bookings / leads / vehicles → Manage (approve, reschedule, update status, upload invoice).
+2.3 Data flow diagram (short)
+User → Frontend → API Gateway → Business logic → Database / Storage → Notification service → User/Admin.
+________________________________________
+3. DATA MODEL (Database Schema)
+Relational model (Postgres). Primary tables:
+users (admin accounts)
+•	id (uuid, PK)
+•	email (unique)
+•	password_hash
+•	name
+•	role (admin, manager)
+•	phone
+•	created_at, updated_at
+vehicles
+•	id (uuid, PK)
+•	title (e.g., “Toyota Premio 2016”)
+•	make, model, year, trim
+•	condition (used/new/refurbished)
+•	price (nullable if on inquiry)
+•	mileage
+•	vin / reg_number
+•	location
+•	description (text)
+•	status (available, reserved, sold)
+•	images (array of image URLs or related table)
+•	created_by (users.id)
+•	created_at, updated_at
+vehicle_images (if normalized)
+•	id (uuid)
+•	vehicle_id (FK)
+•	url
+•	alt_text
+•	sort_order
+bookings
+•	id (uuid)
+•	booking_ref (string) — friendly ref (e.g., DAY-20251212-001)
+•	customer_name
+•	customer_phone
+•	customer_email
+•	vehicle_reg (nullable)
+•	service_type (enum: oil_change, full_service, tyre_alignment, suspension_check, brake_check, other)
+•	preferred_date (date)
+•	preferred_time (time or time_range)
+•	status (requested, confirmed, rescheduled, checked_in, in_progress, completed, cancelled)
+•	notes (text)
+•	admin_note (text)
+•	created_at, updated_at
+•	reminder_sent (boolean)
+leads / inquiries
+•	id (uuid)
+•	vehicle_id (FK nullable)
+•	name, phone, email
+•	type (price_request, test_drive_request, general)
+•	message
+•	status (new, contacted, closed)
+•	created_at, updated_at
+notifications
+•	id, type (email/sms/whatsapp), recipient, payload, status, sent_at, error
+audit_logs (optional)
+•	id, user_id, action, resource_type, resource_id, timestamp, details
+________________________________________
+4. API DESIGN (Representative endpoints)
+Base: https://api.daytonamalawi.mw/v1
+Public endpoints
+•	GET /vehicles — list vehicles (filter: make, year, price_range, status).
+•	GET /vehicles/:id — vehicle details.
+•	POST /inquiries — create a vehicle inquiry. Payload: { vehicle_id, name, phone, email, type, message }.
+•	POST /bookings — create booking. Payload: { name, phone, email, vehicle_reg?, service_type, preferred_date, preferred_time, notes } → creates booking and returns booking_ref.
+•	GET /bookings/:ref — lookup booking by ref & phone for status (simple auth via ref + phone).
+Admin endpoints (require JWT session)
+•	POST /auth/login — admin login.
+•	GET /admin/bookings — list bookings (filterable).
+•	GET /admin/bookings/:id — booking detail.
+•	PATCH /admin/bookings/:id — update status, add admin_note, schedule.
+•	POST /admin/bookings/:id/checkin — mark checked in.
+•	GET /admin/leads — list leads.
+•	POST /admin/vehicles — create vehicle listing.
+•	PATCH /admin/vehicles/:id — update listing.
+•	DELETE /admin/vehicles/:id — remove listing.
+•	POST /admin/vehicles/:id/images — upload image (returns URL).
+•	GET /admin/reports/daily — simple metrics (bookings per day, pending leads).
+•	POST /admin/notifications/test — test notification channel.
+Sample booking payload
+{
+  "name": "John Banda",
+  "phone": "+265991234567",
+  "email": "john@example.mw",
+  "vehicle_reg": "BM 1234",
+  "service_type": "oil_change",
+  "preferred_date": "2025-12-20",
+  "preferred_time": "09:00",
+  "notes": "Engine noise when starting"
+}
+________________________________________
+5. SCALE — Capacity Planning & Traffic Model
+5.1 Estimated load (MVP)
+•	Visits/day: 100–500
+•	Bookings/day: 5–30
+•	Concurrent users: < 50
+5.2 Scalability strategy
+•	Use managed Postgres with connection pooling (PgBouncer or Supabase/Neon built-in).
+•	Serverless functions (Vercel/Netlify) or autoscaling containers (Render / Fly) for backend.
+•	CDN for static assets (images cached in Cloudflare).
+•	Redis for caching hot reads (vehicle list) and rate-limiting.
+•	If growth occurs: add read replicas, background worker for heavy jobs (image processing, large exports).
+5.3 Bottleneck & mitigation
+•	DB connections: use pooling & limit long queries.
+•	Image uploads: store in R2/S3, serve via CDN.
+•	SMS costs: throttle reminders, allow admin toggle per booking.
+________________________________________
+6. TRADEOFFS & Tech Choices
+Recommended stack (balanced, low-cost, quick-to-build)
+•	Frontend: Next.js (React) — SSR for SEO, fast dev on Vercel.
+•	Auth & DB: Supabase (Postgres + Auth + Storage) or Neon + Supabase Auth. (Supabase simplifies auth, storage, real-time).
+•	Backend/API: Serverless API routes in Next.js or small Node.js service (Fastify) on Render.
+•	Storage: Supabase Storage or S3 / Cloudflare R2.
+•	Notifications: SendGrid (email), Twilio or BulkSMS Malawi for SMS (choose local provider for cost).
+•	Redis: Upstash (serverless Redis) or managed Redis on Render.
+•	CI/CD: GitHub Actions → Vercel + deploy backend.
+Why: Low ops, quick iteration, cost-conscious for Malawi market.
+Tradeoffs considered
+•	Serverless vs Containers: Serverless is cheap & fast for low traffic; containers scale better for steady high load. Start serverless, migrate later if needed.
+•	Supabase (all-in-one) vs custom: Supabase speeds development but can lock you into its patterns. For MVP it’s ideal.
+•	WhatsApp Business integration: adds value but is more complex/costly. Initially use SMS + email; add WhatsApp later.
+________________________________________
+________________________________________
+8. RESILIENCE — Observability & DR
+8.1 Monitoring & Alerts
+•	Error tracking: Sentry (exceptions).
+•	Logs: centralized (Papertrail / LogDNA).
+•	Metrics: response times, error rate, booking creation rate (Grafana/Hosted alternative).
+•	Alerts: Slack/Email for critical errors, DB connection issues, high error rate.
+8.2 Backups & DR
+•	Daily DB backups (managed provider snapshot) with 7–30 day retention.
+•	Storage versioning for images optional.
+•	RTO goal: 4 hours for restore; RPO: 24 hours (can tighten later).
+8.3 Security
+•	HTTPS everywhere (Cloudflare + managed cert).
+•	Protect admin endpoints with JWT + strong password policy + IP allowlist (optional).
+•	Rate limit public endpoints to avoid spam.
+•	Validate uploads, scan for malware.
+•	Secrets in vault (Vercel secret env / HashiCorp / GitHub secrets).
+________________________________________
+9. UI / UX — Admin & Public
+Public UX highlights
+•	Prominent “Book Service” button in header.
+•	Vehicles landing with filters and clear CTAs (“Request Price”, “Request Test Drive”, “Contact Seller”).
+•	Booking UX: progress steps (Details → Confirm → Reference). Minimal fields to reduce abandonment. Option to continue via WhatsApp link with prefilled message.
+Admin dashboard
+•	Left nav: Dashboard, Bookings, Vehicles, Leads, Reports, Settings.
+•	Bookings table: sortable, filter by date/status; quick action buttons (Confirm, Reschedule, Check-In).
+•	Vehicle page: photo carousel, edit metadata, mark sold/reserved.
+(Wireframes can be provided on request.)
+________________________________________
+10. Security & Privacy Considerations
+•	Keep PII minimal. Consent checkbox for storing contact details.
+•	Privacy policy page.
+•	Data retention policy: remove leads after configurable period (e.g., 3 years).
+•	Two-step verification for admin accounts recommended.
+________________________________________
+11. Integration & Third-party choices (suggestions)
+•	Hosting (frontend): Vercel (fast deploy, Next.js).
+•	Backend & DB: Supabase (Auth + Postgres + Storage) OR Neon + Supabase Auth.
+•	Images: Supabase Storage or AWS S3 + Cloudflare CDN.
+•	Email: SendGrid or Mailgun.
+•	SMS: Twilio or local SMS aggregator (compare costs).
+•	Analytics: Google Analytics 4; Meta Pixel optional.
+•	Payments (phase 2): Flutterwave or PayPal for Malawi region support.
+________________________________________
+12. Acceptance Criteria (MVP)
+•	Public website pages render and are mobile-responsive.
+•	Admin can login and CRUD vehicle listings with images.
+•	Users can create bookings; system returns a booking reference and sends confirmation (email or SMS).
+•	Admin can view and update booking status and check-in.
+•	Users can submit vehicle inquiries; admin receives notification and can view leads.
+•	Basic logging and monitoring in place.
+________________________________________
+13. Deliverables (what I will provide if you want me to produce artifacts)
+•	Full technical implementation plan + infra as code examples (Terraform).
+•	Database migration scripts (SQL).
+•	OpenAPI (Swagger) spec for APIs.
+•	Next.js starter project (frontend + admin).
+•	CI pipeline (GitHub Actions).
+•	Admin usage documentation and runbook.
+________________________________________
+14. Next steps (practical)
+•	Choose stack (I recommend Next.js + Supabase).
+•	Provide branding assets (logo, color, font).
+•	Provide any content (service descriptions, vehicle default images).
+•	Approve MVP scope & priority of features (bookings first, then vehicles or build both in parallel).
+________________________________________
+15. Appendix — Example: Booking lifecycle states
+•	requested → confirmed (admin) → checked_in → in_progress → completed
+•	Admin can reschedule or cancel. Each transition triggers a notification.
+________________________________________
+

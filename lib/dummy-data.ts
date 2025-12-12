@@ -182,6 +182,7 @@ export const services = [
     price: "From MWK 25,000",
     duration: "45 minutes",
     icon: "droplet",
+    image: "/Oil Change.jpeg",
   },
   {
     id: "full-service",
@@ -190,6 +191,7 @@ export const services = [
     price: "From MWK 85,000",
     duration: "2-3 hours",
     icon: "wrench",
+    image: "/Full Service.jpg",
   },
   {
     id: "brake-check",
@@ -198,6 +200,7 @@ export const services = [
     price: "From MWK 35,000",
     duration: "1 hour",
     icon: "disc",
+    image: "/Brake Inspection.jpg",
   },
   {
     id: "tyre-alignment",
@@ -206,6 +209,7 @@ export const services = [
     price: "From MWK 45,000",
     duration: "1.5 hours",
     icon: "circle",
+    image: "/tyre alignment.jpg",
   },
   {
     id: "diagnostics",
@@ -214,6 +218,7 @@ export const services = [
     price: "From MWK 55,000",
     duration: "1 hour",
     icon: "cpu",
+    image: "/engine diagnostic.jpg",
   },
   {
     id: "ac-service",
@@ -222,5 +227,6 @@ export const services = [
     price: "From MWK 65,000",
     duration: "1.5 hours",
     icon: "wind",
+    image: "/AC Car Service.jpg",
   },
 ]

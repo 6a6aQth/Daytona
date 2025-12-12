@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { vehicles } from "@/lib/dummy-data"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Search, SlidersHorizontal, Car, X } from "lucide-react"
 
 export default function VehiclesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -34,58 +34,94 @@ export default function VehiclesPage() {
     return matchesSearch && matchesFuel && matchesCondition && matchesPrice
   })
 
+  const resetFilters = () => {
+    setSearchTerm("")
+    setPriceRange("all")
+    setFuelType("all")
+    setCondition("all")
+  }
+
+  const hasActiveFilters = searchTerm || priceRange !== "all" || fuelType !== "all" || condition !== "all"
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-16 px-4">
-        <div className="container mx-auto">
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-mesh" />
+        <div className="absolute inset-0 bg-gradient-spotlight opacity-50" />
+        <div className="absolute top-0 left-0 w-1 h-32 bg-gradient-to-b from-primary to-transparent" />
+
+        <div className="container mx-auto relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Our Vehicle Inventory</h1>
-            <p className="text-lg text-muted-foreground text-pretty">
-              Browse our selection of quality pre-owned vehicles, each thoroughly inspected and ready for the road
+            <span className="text-primary font-semibold text-sm tracking-wider uppercase mb-4 block animate-fade-in">
+              Vehicle Inventory
+            </span>
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 animate-slide-up">
+              Quality <span className="text-primary">Pre-Owned</span> Vehicles
+            </h1>
+            <p className="text-lg text-muted-foreground text-pretty animate-slide-up stagger-1 opacity-0">
+              Browse our selection of handpicked vehicles, each thoroughly inspected and ready for the road
             </p>
           </div>
         </div>
       </section>
 
       {/* Filters & Listing */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 relative">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-24">
                 <div className="flex items-center justify-between mb-4 lg:mb-6">
-                  <h2 className="text-xl font-bold text-foreground">Filters</h2>
-                  <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setShowFilters(!showFilters)}>
-                    <SlidersHorizontal size={20} />
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <SlidersHorizontal size={20} className="text-primary" />
+                    Filters
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="lg:hidden"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    {showFilters ? <X size={20} /> : <SlidersHorizontal size={20} />}
                   </Button>
                 </div>
 
-                <Card className={`${showFilters ? "block" : "hidden lg:block"}`}>
+                <Card
+                  className={`border-border/50 overflow-hidden ${showFilters ? "block" : "hidden lg:block"}`}
+                >
+                  <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-transparent" />
                   <CardContent className="p-6 space-y-6">
                     {/* Search */}
                     <div className="space-y-2">
-                      <Label htmlFor="search">Search</Label>
+                      <Label htmlFor="search" className="text-foreground font-medium">
+                        Search
+                      </Label>
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                        <Search
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          size={18}
+                        />
                         <Input
                           id="search"
                           placeholder="Search vehicles..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 h-11 bg-muted/50 border-border focus:border-primary"
                         />
                       </div>
                     </div>
 
                     {/* Price Range */}
                     <div className="space-y-2">
-                      <Label htmlFor="price">Price Range</Label>
+                      <Label htmlFor="price" className="text-foreground font-medium">
+                        Price Range
+                      </Label>
                       <Select value={priceRange} onValueChange={setPriceRange}>
-                        <SelectTrigger id="price">
+                        <SelectTrigger id="price" className="h-11 bg-muted/50 border-border">
                           <SelectValue placeholder="Select price range" />
                         </SelectTrigger>
                         <SelectContent>
@@ -99,9 +135,11 @@ export default function VehiclesPage() {
 
                     {/* Fuel Type */}
                     <div className="space-y-2">
-                      <Label htmlFor="fuel">Fuel Type</Label>
+                      <Label htmlFor="fuel" className="text-foreground font-medium">
+                        Fuel Type
+                      </Label>
                       <Select value={fuelType} onValueChange={setFuelType}>
-                        <SelectTrigger id="fuel">
+                        <SelectTrigger id="fuel" className="h-11 bg-muted/50 border-border">
                           <SelectValue placeholder="Select fuel type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -114,9 +152,11 @@ export default function VehiclesPage() {
 
                     {/* Condition */}
                     <div className="space-y-2">
-                      <Label htmlFor="condition">Condition</Label>
+                      <Label htmlFor="condition" className="text-foreground font-medium">
+                        Condition
+                      </Label>
                       <Select value={condition} onValueChange={setCondition}>
-                        <SelectTrigger id="condition">
+                        <SelectTrigger id="condition" className="h-11 bg-muted/50 border-border">
                           <SelectValue placeholder="Select condition" />
                         </SelectTrigger>
                         <SelectContent>
@@ -129,18 +169,12 @@ export default function VehiclesPage() {
                     </div>
 
                     {/* Reset Button */}
-                    <Button
-                      variant="outline"
-                      className="w-full bg-transparent"
-                      onClick={() => {
-                        setSearchTerm("")
-                        setPriceRange("all")
-                        setFuelType("all")
-                        setCondition("all")
-                      }}
-                    >
-                      Reset Filters
-                    </Button>
+                    {hasActiveFilters && (
+                      <Button variant="outline" className="w-full bg-transparent" onClick={resetFilters}>
+                        <X size={16} className="mr-2" />
+                        Reset Filters
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -148,32 +182,41 @@ export default function VehiclesPage() {
 
             {/* Vehicle Grid */}
             <div className="lg:col-span-3">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-8 p-4 rounded-xl bg-card border border-border/50">
                 <p className="text-muted-foreground">
-                  Showing {filteredVehicles.length} of {vehicles.length} vehicles
+                  Showing <span className="text-primary font-semibold">{filteredVehicles.length}</span> of{" "}
+                  <span className="text-foreground font-semibold">{vehicles.length}</span> vehicles
                 </p>
+                {hasActiveFilters && (
+                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary">
+                    Clear all
+                  </Button>
+                )}
               </div>
 
               {filteredVehicles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredVehicles.map((vehicle) => (
-                    <VehicleCard key={vehicle.id} {...vehicle} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {filteredVehicles.map((vehicle, index) => (
+                    <div
+                      key={vehicle.id}
+                      className={`animate-slide-up stagger-${(index % 4) + 1} opacity-0`}
+                    >
+                      <VehicleCard {...vehicle} />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <p className="text-muted-foreground">No vehicles found matching your filters.</p>
-                    <Button
-                      variant="outline"
-                      className="mt-4 bg-transparent"
-                      onClick={() => {
-                        setSearchTerm("")
-                        setPriceRange("all")
-                        setFuelType("all")
-                        setCondition("all")
-                      }}
-                    >
+                <Card className="border-border/50">
+                  <CardContent className="p-16 text-center">
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                      <Car className="text-primary" size={40} />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">No vehicles found</h3>
+                    <p className="text-muted-foreground mb-6">
+                      No vehicles match your current filters. Try adjusting your search criteria.
+                    </p>
+                    <Button variant="outline" onClick={resetFilters}>
+                      <X size={16} className="mr-2" />
                       Reset Filters
                     </Button>
                   </CardContent>

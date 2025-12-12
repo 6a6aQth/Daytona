@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { services } from "@/lib/dummy-data"
-import { Calendar, Check, ChevronLeft, ChevronRight } from "lucide-react"
+import { Calendar, Check, ChevronLeft, ChevronRight, Car, User, Wrench, ArrowRight, Home } from "lucide-react"
+import Link from "next/link"
 
 interface BookingData {
   // Step 1
@@ -26,6 +27,12 @@ interface BookingData {
   email: string
   notes: string
 }
+
+const steps = [
+  { id: 1, title: "Service & Vehicle", icon: Car },
+  { id: 2, title: "Schedule", icon: Calendar },
+  { id: 3, title: "Your Details", icon: User },
+]
 
 export function BookingFormWizard() {
   const [currentStep, setCurrentStep] = useState(1)
@@ -74,21 +81,22 @@ export function BookingFormWizard() {
 
   if (isSubmitted) {
     return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Check className="text-primary" size={40} />
+      <Card className="max-w-2xl mx-auto border-border/50 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-transparent" />
+        <CardContent className="p-10 text-center">
+          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-8 glow-gold-sm">
+            <Check className="text-primary" size={48} />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-4">Booking Confirmed!</h2>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
             Your service has been successfully booked. We've sent a confirmation to your email.
           </p>
-          <div className="bg-muted rounded-lg p-6 mb-6">
-            <p className="text-sm text-muted-foreground mb-2">Your Booking Reference</p>
-            <p className="text-3xl font-bold text-primary">{bookingReference}</p>
-            <p className="text-xs text-muted-foreground mt-2">Please save this reference number</p>
+          <div className="bg-card border border-border rounded-xl p-6 mb-8 glow-gold-sm">
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">Your Booking Reference</p>
+            <p className="text-4xl font-bold text-primary mb-2">{bookingReference}</p>
+            <p className="text-xs text-muted-foreground">Please save this reference number</p>
           </div>
-          <div className="space-y-2 text-left mb-6 max-w-md mx-auto">
+          <div className="space-y-3 text-left mb-8 max-w-md mx-auto p-6 rounded-xl bg-muted/30 border border-border/50">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Service:</span>
               <span className="text-foreground font-medium">
@@ -106,9 +114,20 @@ export function BookingFormWizard() {
               <span className="text-foreground font-medium">{bookingData.vehicleReg}</span>
             </div>
           </div>
-          <Button size="lg" onClick={() => (window.location.href = "/")}>
-            Back to Home
-          </Button>
+          <div className="flex gap-4 justify-center">
+            <Button size="lg" variant="outline" asChild className="bg-transparent">
+              <Link href="/booking-lookup">
+                Check Booking Status
+                <ArrowRight size={16} className="ml-2" />
+              </Link>
+            </Button>
+            <Button size="lg" asChild className="glow-gold-sm hover:glow-gold">
+              <Link href="/">
+                <Home size={16} className="mr-2" />
+                Back to Home
+              </Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     )
@@ -117,51 +136,69 @@ export function BookingFormWizard() {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          {[1, 2, 3].map((step) => (
-            <div key={step} className="flex items-center flex-1">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  step <= currentStep ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {step}
-              </div>
-              {step < 3 && (
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-6">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-center flex-1">
+              <div className="flex flex-col items-center gap-2">
                 <div
-                  className={`flex-1 h-1 mx-2 ${step < currentStep ? "bg-primary" : "bg-muted"} transition-colors`}
+                  className={`w-14 h-14 rounded-xl flex items-center justify-center font-semibold transition-all ${
+                    step.id <= currentStep
+                      ? "bg-primary text-primary-foreground glow-gold-sm"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {step.id < currentStep ? (
+                    <Check size={24} />
+                  ) : (
+                    <step.icon size={24} />
+                  )}
+                </div>
+                <span
+                  className={`text-xs font-medium ${
+                    step.id <= currentStep ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {step.title}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`flex-1 h-1 mx-4 rounded-full transition-colors ${
+                    step.id < currentStep ? "bg-primary" : "bg-muted"
+                  }`}
                 />
               )}
             </div>
           ))}
         </div>
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Service Details</span>
-          <span>Schedule</span>
-          <span>Your Information</span>
-        </div>
       </div>
 
-      <Card>
+      <Card className="border-border/50 overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary via-amber-500 to-transparent" />
         <CardContent className="p-8">
           {/* Step 1: Service & Vehicle Details */}
           {currentStep === 1 && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Service & Vehicle Details</h2>
-                <p className="text-muted-foreground">Tell us about your vehicle and the service you need</p>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Wrench className="text-primary" size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Service & Vehicle</h2>
+                  <p className="text-muted-foreground text-sm">Tell us about your vehicle and the service you need</p>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="serviceType">
-                  Service Type <span className="text-destructive">*</span>
+                <Label htmlFor="serviceType" className="text-foreground font-medium">
+                  Service Type <span className="text-primary">*</span>
                 </Label>
                 <Select
                   value={bookingData.serviceType}
                   onValueChange={(value) => updateBookingData("serviceType", value)}
                 >
-                  <SelectTrigger id="serviceType">
+                  <SelectTrigger id="serviceType" className="h-12 bg-muted/50 border-border">
                     <SelectValue placeholder="Select service type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -176,48 +213,54 @@ export function BookingFormWizard() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vehicleMake">
-                    Vehicle Make <span className="text-destructive">*</span>
+                  <Label htmlFor="vehicleMake" className="text-foreground font-medium">
+                    Vehicle Make <span className="text-primary">*</span>
                   </Label>
                   <Input
                     id="vehicleMake"
                     placeholder="e.g., Toyota"
                     value={bookingData.vehicleMake}
                     onChange={(e) => updateBookingData("vehicleMake", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="vehicleModel">
-                    Vehicle Model <span className="text-destructive">*</span>
+                  <Label htmlFor="vehicleModel" className="text-foreground font-medium">
+                    Vehicle Model <span className="text-primary">*</span>
                   </Label>
                   <Input
                     id="vehicleModel"
                     placeholder="e.g., Corolla"
                     value={bookingData.vehicleModel}
                     onChange={(e) => updateBookingData("vehicleModel", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vehicleYear">Year</Label>
+                  <Label htmlFor="vehicleYear" className="text-foreground font-medium">
+                    Year
+                  </Label>
                   <Input
                     id="vehicleYear"
                     placeholder="e.g., 2020"
                     value={bookingData.vehicleYear}
                     onChange={(e) => updateBookingData("vehicleYear", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="vehicleReg">
-                    Registration Number <span className="text-destructive">*</span>
+                  <Label htmlFor="vehicleReg" className="text-foreground font-medium">
+                    Registration Number <span className="text-primary">*</span>
                   </Label>
                   <Input
                     id="vehicleReg"
                     placeholder="e.g., MA 1234"
                     value={bookingData.vehicleReg}
                     onChange={(e) => updateBookingData("vehicleReg", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
               </div>
@@ -227,14 +270,19 @@ export function BookingFormWizard() {
           {/* Step 2: Date & Time */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Schedule Your Service</h2>
-                <p className="text-muted-foreground">Choose your preferred date and time</p>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Calendar className="text-primary" size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Schedule Your Service</h2>
+                  <p className="text-muted-foreground text-sm">Choose your preferred date and time</p>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="date">
-                  Preferred Date <span className="text-destructive">*</span>
+                <Label htmlFor="date" className="text-foreground font-medium">
+                  Preferred Date <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="date"
@@ -242,15 +290,16 @@ export function BookingFormWizard() {
                   value={bookingData.date}
                   onChange={(e) => updateBookingData("date", e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
+                  className="h-12 bg-muted/50 border-border"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="time">
-                  Preferred Time <span className="text-destructive">*</span>
+                <Label htmlFor="time" className="text-foreground font-medium">
+                  Preferred Time <span className="text-primary">*</span>
                 </Label>
                 <Select value={bookingData.time} onValueChange={(value) => updateBookingData("time", value)}>
-                  <SelectTrigger id="time">
+                  <SelectTrigger id="time" className="h-12 bg-muted/50 border-border">
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
                   <SelectContent>
@@ -268,46 +317,52 @@ export function BookingFormWizard() {
                 </Select>
               </div>
 
-              <Card className="bg-muted/50 border-0">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="text-primary flex-shrink-0 mt-1" size={20} />
-                    <div className="text-sm text-muted-foreground">
-                      <p className="font-medium text-foreground mb-1">Business Hours</p>
-                      <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
-                      <p>Saturday: 9:00 AM - 4:00 PM</p>
-                      <p>Sunday: Closed</p>
-                    </div>
+              <div className="p-5 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="text-primary" size={18} />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-semibold text-foreground mb-2">Business Hours</p>
+                    <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
+                    <p>Saturday: 9:00 AM - 4:00 PM</p>
+                    <p>Sunday: Closed</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Step 3: Customer Information */}
           {currentStep === 3 && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Your Information</h2>
-                <p className="text-muted-foreground">We'll use this to confirm your booking</p>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <User className="text-primary" size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Your Information</h2>
+                  <p className="text-muted-foreground text-sm">We'll use this to confirm your booking</p>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="customerName">
-                  Full Name <span className="text-destructive">*</span>
+                <Label htmlFor="customerName" className="text-foreground font-medium">
+                  Full Name <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="customerName"
                   placeholder="John Phiri"
                   value={bookingData.customerName}
                   onChange={(e) => updateBookingData("customerName", e.target.value)}
+                  className="h-12 bg-muted/50 border-border"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">
-                    Phone Number <span className="text-destructive">*</span>
+                  <Label htmlFor="phone" className="text-foreground font-medium">
+                    Phone Number <span className="text-primary">*</span>
                   </Label>
                   <Input
                     id="phone"
@@ -315,75 +370,83 @@ export function BookingFormWizard() {
                     placeholder="+265 xxx xxx xxx"
                     value={bookingData.phone}
                     onChange={(e) => updateBookingData("phone", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email" className="text-foreground font-medium">
+                    Email Address
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="john@example.com"
                     value={bookingData.email}
                     onChange={(e) => updateBookingData("email", e.target.value)}
+                    className="h-12 bg-muted/50 border-border"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes (Optional)</Label>
+                <Label htmlFor="notes" className="text-foreground font-medium">
+                  Additional Notes (Optional)
+                </Label>
                 <Textarea
                   id="notes"
                   placeholder="Any specific concerns or requests..."
                   value={bookingData.notes}
                   onChange={(e) => updateBookingData("notes", e.target.value)}
-                  className="min-h-24"
+                  className="min-h-24 bg-muted/50 border-border resize-none"
                 />
               </div>
 
               {/* Summary */}
-              <Card className="bg-muted/50 border-0">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground mb-3">Booking Summary</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Service:</span>
-                      <span className="text-foreground font-medium">
-                        {services.find((s) => s.id === bookingData.serviceType)?.name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Vehicle:</span>
-                      <span className="text-foreground font-medium">
-                        {bookingData.vehicleMake} {bookingData.vehicleModel} ({bookingData.vehicleReg})
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Date & Time:</span>
-                      <span className="text-foreground font-medium">
-                        {bookingData.date} at {bookingData.time}
-                      </span>
-                    </div>
+              <div className="p-5 rounded-xl bg-muted/30 border border-border/50">
+                <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                  <Check className="text-primary" size={18} />
+                  Booking Summary
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Service:</span>
+                    <span className="text-foreground font-medium">
+                      {services.find((s) => s.id === bookingData.serviceType)?.name}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Vehicle:</span>
+                    <span className="text-foreground font-medium">
+                      {bookingData.vehicleMake} {bookingData.vehicleModel} ({bookingData.vehicleReg})
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Date & Time:</span>
+                    <span className="text-foreground font-medium">
+                      {bookingData.date} at {bookingData.time}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-4 mt-8 pt-6 border-t border-border">
             {currentStep > 1 && (
-              <Button variant="outline" onClick={handleBack} className="flex-1 bg-transparent">
-                <ChevronLeft size={16} className="mr-2" />
+              <Button variant="outline" onClick={handleBack} className="flex-1 h-12 bg-transparent">
+                <ChevronLeft size={18} className="mr-2" />
                 Back
               </Button>
             )}
             {currentStep < totalSteps ? (
-              <Button onClick={handleNext} className="flex-1">
-                Next
-                <ChevronRight size={16} className="ml-2" />
+              <Button onClick={handleNext} className="flex-1 h-12 glow-gold-sm hover:glow-gold">
+                Next Step
+                <ChevronRight size={18} className="ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} className="flex-1">
+              <Button onClick={handleSubmit} className="flex-1 h-12 glow-gold-sm hover:glow-gold">
+                <Check size={18} className="mr-2" />
                 Confirm Booking
               </Button>
             )}
