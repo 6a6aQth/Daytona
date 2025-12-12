@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { VehicleCard } from "@/components/vehicle-card"
+import { StatsSection } from "@/components/stats-section"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -184,33 +185,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-card via-card to-background" />
-        <div className="absolute inset-0 bg-gradient-spotlight opacity-50" />
-
-        <div className="container mx-auto relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { number: "20+", label: "Years Experience", suffix: "" },
-              { number: "3.8", label: "Services Completed", suffix: "k" },
-              { number: "30+", label: "Expert Technicians", suffix: "" },
-              { number: "100", label: "Customer Satisfaction", suffix: "%" },
-            ].map((stat, index) => (
-              <div
-                key={stat.label}
-                className={`text-center p-6 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm card-hover-glow animate-slide-up stagger-${index + 1} opacity-0`}
-              >
-                <div className="flex items-baseline justify-center gap-1 mb-2">
-                  <span className="text-5xl md:text-6xl font-bold text-primary stat-number">{stat.number}</span>
-                  <span className="text-2xl md:text-3xl font-bold text-primary">{stat.suffix}</span>
-                </div>
-                <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Stats Section with Shuffle Animation */}
+      <StatsSection />
 
       {/* Services Section */}
       <section className="py-24 px-4 relative">
