@@ -94,16 +94,7 @@ export default function HomePage() {
             priority
             quality={90}
           />
-          {/* Gradient fade to black on the left edge */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
-          {/* Bottom fade */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          {/* Top fade for navbar area */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent h-32" />
         </div>
-
-        {/* Subtle gradient mesh for depth on left side */}
-        <div className="absolute inset-0 bg-gradient-mesh opacity-30" />
 
         {/* Gold accent decorations */}
         <div className="absolute left-0 top-1/3 w-1 h-40 bg-gradient-to-b from-primary to-transparent" />

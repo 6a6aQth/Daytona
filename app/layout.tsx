@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Playfair_Display, Montserrat } from "next/font/google"
+import { Playfair_Display, Montserrat, Orbitron } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
@@ -18,6 +18,14 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   display: "swap",
   weight: ["300", "400", "500", "600", "700", "800"],
+})
+
+// Futuristic font for stats numbers
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
 })
 
 export const metadata: Metadata = {
@@ -62,7 +70,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${playfair.variable} ${montserrat.variable} font-sans antialiased`}>
+      <body className={`${playfair.variable} ${montserrat.variable} ${orbitron.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

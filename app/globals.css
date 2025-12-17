@@ -79,6 +79,7 @@
   --font-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
   --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-orbitron: var(--font-orbitron), "Orbitron", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -140,6 +141,10 @@
 
 .font-body {
   font-family: var(--font-sans);
+}
+
+.font-orbitron {
+  font-family: var(--font-orbitron), 'Orbitron', monospace;
 }
 
 /* Custom animations */
@@ -391,4 +396,18 @@
 
 .btn-gold-gradient:hover {
   background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+}
+
+/* Admin Light Theme */
+.admin-theme {
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-text-muted: #64748b;
+  --admin-primary: #f59e0b;
+  --admin-primary-light: #fef3c7;
+  --admin-sidebar-bg: #ffffff;
+  --admin-sidebar-border: #e2e8f0;
+  --admin-sidebar-active: #fffbeb;
 }

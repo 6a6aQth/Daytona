@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { leads } from "@/lib/dummy-data"
-import { Search, Eye, Mail, Phone } from "lucide-react"
+import { Search, Eye, Mail, Phone, MessageSquare, UserPlus, Users } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,10 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAdminAuth } from "@/contexts/admin-auth-context"
 
 export default function AdminLeadsPage() {
+  const { isAuthenticated } = useAdminAuth()
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredLeads = leads.filter((lead) => {
@@ -30,27 +32,31 @@ export default function AdminLeadsPage() {
     )
   })
 
+  if (!isAuthenticated) {
+    return null
+  }
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-white">
       <AdminSidebar />
 
       <div className="flex-1 p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Leads Management</h1>
-          <p className="text-muted-foreground">Track and manage vehicle inquiries</p>
+          <h1 className="text-3xl font-bold text-black mb-1">Leads Management</h1>
+          <p className="text-neutral-500">Track and manage vehicle inquiries</p>
         </div>
 
         {/* Search */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-white border-neutral-200">
           <CardContent className="p-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
               <Input
                 placeholder="Search by customer name, vehicle, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-neutral-50 border-neutral-200 text-black placeholder:text-neutral-400"
               />
             </div>
           </CardContent>
@@ -58,116 +64,140 @@ export default function AdminLeadsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
+          <Card className="bg-white border-neutral-200">
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Total Leads</p>
-              <p className="text-2xl font-bold text-foreground">{leads.length}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                  <Users className="text-black" size={20} />
+                </div>
+                <div>
+                  <p className="text-sm text-neutral-500">Total Leads</p>
+                  <p className="text-2xl font-bold text-black">{leads.length}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white border-neutral-200">
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">New Leads</p>
-              <p className="text-2xl font-bold text-foreground">{leads.filter((l) => l.status === "new").length}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center">
+                  <UserPlus className="text-primary" size={20} />
+                </div>
+                <div>
+                  <p className="text-sm text-neutral-500">New Leads</p>
+                  <p className="text-2xl font-bold text-black">{leads.filter((l) => l.status === "new").length}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white border-neutral-200">
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-1">Contacted</p>
-              <p className="text-2xl font-bold text-foreground">
-                {leads.filter((l) => l.status === "contacted").length}
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <MessageSquare className="text-primary" size={20} />
+                </div>
+                <div>
+                  <p className="text-sm text-neutral-500">Contacted</p>
+                  <p className="text-2xl font-bold text-black">
+                    {leads.filter((l) => l.status === "contacted").length}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Leads Table */}
-        <Card>
+        <Card className="bg-white border-neutral-200">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b border-border bg-muted/50">
+                <thead className="border-b border-neutral-200 bg-neutral-50">
                   <tr>
-                    <th className="text-left p-4 font-semibold text-foreground">Lead ID</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Customer</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Vehicle Interest</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Inquiry Type</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Date</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Status</th>
-                    <th className="text-left p-4 font-semibold text-foreground">Actions</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Lead ID</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Customer</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Vehicle Interest</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Inquiry Type</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Date</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Status</th>
+                    <th className="text-left p-4 font-semibold text-black text-sm">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-neutral-100">
                   {filteredLeads.map((lead) => (
-                    <tr key={lead.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                    <tr key={lead.id} className="hover:bg-neutral-50 transition-colors">
                       <td className="p-4">
-                        <span className="font-mono text-sm text-foreground">{lead.id}</span>
+                        <span className="font-mono text-sm text-black">{lead.id}</span>
                       </td>
                       <td className="p-4">
                         <div>
-                          <p className="font-medium text-foreground">{lead.customerName}</p>
-                          <p className="text-xs text-muted-foreground">{lead.email}</p>
-                          <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                          <p className="font-medium text-black">{lead.customerName}</p>
+                          <p className="text-xs text-neutral-500">{lead.email}</p>
+                          <p className="text-xs text-neutral-500">{lead.phone}</p>
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="text-sm text-foreground">{lead.vehicleInterest}</span>
+                        <span className="text-sm text-neutral-700">{lead.vehicleInterest}</span>
                       </td>
                       <td className="p-4">
-                        <Badge variant="outline" className="bg-transparent">
+                        <Badge variant="outline" className="bg-neutral-50 border-neutral-200 text-black">
                           {lead.inquiryType}
                         </Badge>
                       </td>
                       <td className="p-4">
-                        <span className="text-sm text-foreground">{lead.date}</span>
+                        <span className="text-sm text-neutral-700">{lead.date}</span>
                       </td>
                       <td className="p-4">
-                        <Badge className={lead.status === "new" ? "bg-primary text-primary-foreground" : ""}>
+                        <Badge className={lead.status === "new" 
+                          ? "bg-primary text-black" 
+                          : "bg-black text-white"
+                        }>
                           {lead.status === "new" ? "New" : "Contacted"}
                         </Badge>
                       </td>
                       <td className="p-4">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-neutral-600 hover:text-black hover:bg-neutral-100">
                               <Eye size={16} />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="bg-white">
                             <DialogHeader>
-                              <DialogTitle>Lead Details</DialogTitle>
+                              <DialogTitle className="text-black">Lead Details</DialogTitle>
                               <DialogDescription>Reference: {lead.id}</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
                               <div>
-                                <Label>Customer Name</Label>
-                                <p className="text-foreground">{lead.customerName}</p>
+                                <Label className="text-neutral-600">Customer Name</Label>
+                                <p className="text-black">{lead.customerName}</p>
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <Label>Email</Label>
-                                  <p className="text-foreground text-sm">{lead.email}</p>
+                                  <Label className="text-neutral-600">Email</Label>
+                                  <p className="text-black text-sm">{lead.email}</p>
                                 </div>
                                 <div>
-                                  <Label>Phone</Label>
-                                  <p className="text-foreground text-sm">{lead.phone}</p>
+                                  <Label className="text-neutral-600">Phone</Label>
+                                  <p className="text-black text-sm">{lead.phone}</p>
                                 </div>
                               </div>
                               <div>
-                                <Label>Vehicle Interest</Label>
-                                <p className="text-foreground">{lead.vehicleInterest}</p>
+                                <Label className="text-neutral-600">Vehicle Interest</Label>
+                                <p className="text-black">{lead.vehicleInterest}</p>
                               </div>
                               <div>
-                                <Label>Inquiry Type</Label>
-                                <p className="text-foreground">{lead.inquiryType}</p>
+                                <Label className="text-neutral-600">Inquiry Type</Label>
+                                <p className="text-black">{lead.inquiryType}</p>
                               </div>
                               <div>
-                                <Label>Message</Label>
-                                <p className="text-foreground">{lead.message}</p>
+                                <Label className="text-neutral-600">Message</Label>
+                                <p className="text-black">{lead.message}</p>
                               </div>
                               <div>
-                                <Label>Status</Label>
+                                <Label className="text-neutral-600">Status</Label>
                                 <Select defaultValue={lead.status}>
-                                  <SelectTrigger className="mt-2">
+                                  <SelectTrigger className="mt-2 bg-neutral-50 border-neutral-200">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -177,11 +207,11 @@ export default function AdminLeadsPage() {
                                 </Select>
                               </div>
                               <div className="flex gap-2 pt-4">
-                                <Button className="flex-1">
+                                <Button className="flex-1 bg-primary hover:bg-primary/90 text-black">
                                   <Mail size={16} className="mr-2" />
                                   Email
                                 </Button>
-                                <Button variant="outline" className="flex-1 bg-transparent">
+                                <Button variant="outline" className="flex-1 border-neutral-200 text-black hover:bg-neutral-50">
                                   <Phone size={16} className="mr-2" />
                                   Call
                                 </Button>

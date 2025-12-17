@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Phone, ChevronRight } from "lucide-react"
+import { Menu, X, ChevronRight } from "lucide-react"
 import { useState, useEffect } from "react"
 
 export function Navbar() {
@@ -67,10 +67,6 @@ export function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-              <Phone size={14} className="text-primary" />
-              <span>+265 xxx xxx</span>
-            </div>
             <Button variant="outline" size="sm" asChild className="border-border hover:border-primary hover:bg-primary/10">
               <Link href="/booking-lookup">Check Booking</Link>
             </Button>
