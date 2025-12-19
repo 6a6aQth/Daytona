@@ -4,68 +4,68 @@
 
 ---
 
-## 1.0 Database Setup & Schema
+## ~~1.0 Database Setup & Schema~~ ✅
 
-### 1.1 Set up Supabase project
-Create a new Supabase project for Daytona Malawi with appropriate region and credentials.
+### ~~1.1 Set up Supabase project~~ ✅
+~~Create a new Supabase project for Daytona Malawi with appropriate region and credentials.~~
 
-### 1.2 Create `users` table migration
-Implement the users table with columns: id (uuid), email (unique), password_hash, name, role (admin/manager), phone, created_at, updated_at.
+### ~~1.2 Create `users` table migration~~ ✅
+~~Implement the users table with columns: id (uuid), email (unique), password_hash, name, role (admin/manager), phone, created_at, updated_at.~~
 
-### 1.3 Create `vehicles` table migration
-Implement the vehicles table with columns: id (uuid), title, make, model, year, trim, condition (enum), price, mileage, vin, reg_number, location, description, status (enum: available/reserved/sold), created_by (FK to users), created_at, updated_at.
+### ~~1.3 Create `vehicles` table migration~~ ✅
+~~Implement the vehicles table with columns: id (uuid), title, make, model, year, trim, condition (enum), price, mileage, vin, reg_number, location, description, status (enum: available/reserved/sold), created_by (FK to users), created_at, updated_at.~~
 
-### 1.4 Create `vehicle_images` table migration
-Implement vehicle_images table with columns: id (uuid), vehicle_id (FK), url, alt_text, sort_order.
+### ~~1.4 Create `vehicle_images` table migration~~ ✅
+~~Implement vehicle_images table with columns: id (uuid), vehicle_id (FK), url, alt_text, sort_order.~~
 
-### 1.5 Create `bookings` table migration
-Implement bookings table with columns: id (uuid), booking_ref (string), customer_name, customer_phone, customer_email, vehicle_reg, service_type (enum), preferred_date, preferred_time, status (enum: requested/confirmed/rescheduled/checked_in/in_progress/completed/cancelled), notes, admin_note, reminder_sent, created_at, updated_at.
+### ~~1.5 Create `bookings` table migration~~ ✅
+~~Implement bookings table with columns: id (uuid), booking_ref (string), customer_name, customer_phone, customer_email, vehicle_reg, service_type (enum), preferred_date, preferred_time, status (enum: requested/confirmed/rescheduled/checked_in/in_progress/completed/cancelled), notes, admin_note, reminder_sent, created_at, updated_at.~~
 
-### 1.6 Create `leads` (inquiries) table migration
-Implement leads table with columns: id (uuid), vehicle_id (FK nullable), name, phone, email, type (enum: price_request/test_drive_request/general), message, status (enum: new/contacted/closed), created_at, updated_at.
+### ~~1.6 Create `leads` (inquiries) table migration~~ ✅
+~~Implement leads table with columns: id (uuid), vehicle_id (FK nullable), name, phone, email, type (enum: price_request/test_drive_request/general), message, status (enum: new/contacted/closed), created_at, updated_at.~~
 
-### 1.7 Create `notifications` table migration
-Implement notifications table with columns: id (uuid), type (email/sms/whatsapp), recipient, payload (jsonb), status, sent_at, error.
+### ~~1.7 Create `notifications` table migration~~ ✅
+~~Implement notifications table with columns: id (uuid), type (email/sms/whatsapp), recipient, payload (jsonb), status, sent_at, error.~~
 
-### 1.8 Create `audit_logs` table migration (optional)
-Implement audit_logs table with columns: id (uuid), user_id, action, resource_type, resource_id, timestamp, details (jsonb).
+### ~~1.8 Create `audit_logs` table migration (optional)~~ ✅
+~~Implement audit_logs table with columns: id (uuid), user_id, action, resource_type, resource_id, timestamp, details (jsonb).~~
 
-### 1.9 Set up database connection pooling
-Configure Supabase/Neon connection pooling for efficient DB connections.
+### ~~1.9 Set up database connection pooling~~ ✅
+~~Configure Supabase/Neon connection pooling for efficient DB connections.~~
 
-### 1.10 Create database seed script
-Create seed script to populate initial admin user and sample data for development/testing.
+### ~~1.10 Create database seed script~~ ✅
+~~Create seed script to populate initial admin user and sample data for development/testing.~~
 
 ---
 
-## 2.0 Authentication & Authorization
+## ~~2.0 Authentication & Authorization~~ ✅
 
-### 2.1 Set up Supabase Auth integration
-Configure Supabase Auth with email/password authentication for admin users.
+### ~~2.1 Set up Supabase Auth integration~~ ✅
+~~Configure Supabase Auth with email/password authentication for admin users.~~
 
-### 2.2 Replace hardcoded password auth with Supabase Auth
-Remove the current hardcoded password (`"1234"`) and integrate proper Supabase Auth in `admin-auth-context.tsx`.
+### ~~2.2 Replace hardcoded password auth with Supabase Auth~~ ✅
+~~Remove the current hardcoded password (`"1234"`) and integrate proper Supabase Auth in `admin-auth-context.tsx`.~~
 
-### 2.3 Implement JWT session management
-Add JWT token storage, validation, and automatic refresh logic.
+### ~~2.3 Implement JWT session management~~ ✅
+~~Add JWT token storage, validation, and automatic refresh logic.~~
 
-### 2.4 Protect admin API routes with middleware
-Create Next.js middleware to validate JWT on all `/admin/*` API routes.
+### ~~2.4 Protect admin API routes with middleware~~ ✅
+~~Create Next.js middleware to validate JWT on all `/admin/*` API routes.~~
 
-### 2.5 Implement role-based access control
-Add role checking (admin vs manager) to restrict certain operations.
+### ~~2.5 Implement role-based access control~~ ✅
+~~Add role checking (admin vs manager) to restrict certain operations.~~
 
-### 2.6 Create admin user management page
-Build UI for creating/editing admin users (for super-admin role).
+### ~~2.6 Create admin user management page~~ ✅
+~~Build UI for creating/editing admin users (for super-admin role).~~
 
-### 2.7 Implement strong password policy enforcement
-Add password strength requirements (minimum 8 chars, mixed case, numbers).
+### ~~2.7 Implement strong password policy enforcement~~ ✅
+~~Add password strength requirements (minimum 8 chars, mixed case, numbers).~~
 
-### 2.8 Add optional 2FA for admin accounts
-Implement two-factor authentication setup and verification flow.
+### ~~2.8 Add optional 2FA for admin accounts~~ ✅
+~~Implement two-factor authentication setup and verification flow.~~
 
-### 2.9 Implement session timeout and logout
-Add automatic session timeout after inactivity and proper logout functionality.
+### ~~2.9 Implement session timeout and logout~~ ✅
+~~Add automatic session timeout after inactivity and proper logout functionality.~~
 
 ---
 
